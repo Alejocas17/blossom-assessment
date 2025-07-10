@@ -1,9 +1,16 @@
-import { Resolver, Query } from '@nestjs/graphql';
+import { Resolver, Query, Args } from '@nestjs/graphql';
+import { CharacterType } from './dto/character.type';
+import { CharacterFilterInput } from './dto/filters.input';
+import { CharacterService } from './character.service';
 
-@Resolver()
+@Resolver(() => CharacterType)
 export class CharacterResolver {
-  @Query(() => String)
-  hello(): string {
-    return 'Hello World!';
+  constructor(private readonly characterService: CharacterService) {}
+
+  @Query(() => [CharacterType])
+  async characters(
+    @Args('filter', { nullable: true }) filter?: CharacterFilterInput,
+  ): Promise<CharacterType[]> {
+    return this.characterService.findAll(filter);
   }
 }
