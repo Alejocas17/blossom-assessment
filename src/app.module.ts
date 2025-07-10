@@ -7,7 +7,6 @@ import { CharacterModule } from './character/character.module';
 import { DatabaseModule } from './database/database.module';
 @Module({
   imports: [
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
