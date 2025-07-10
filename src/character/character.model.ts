@@ -19,7 +19,6 @@ export class Character extends Model<Character> {
 
   @Column
   declare image: string;
-
-  @Column({ type: DataType.JSONB })
-  declare origin: { name: string; url: string };
+  @Column
+  declare origin: string;
 }
