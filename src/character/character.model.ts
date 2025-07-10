@@ -6,20 +6,19 @@ export class Character extends Model<Character> {
   declare id: number;
 
   @Column
-  name: string;
+  declare name: string;
 
   @Column
-  status: string;
+  declare status: string;
 
   @Column
-  species: string;
+  declare species: string;
 
   @Column
-  gender: string;
+  declare gender: string;
 
   @Column
-  image: string;
-
-  @Column({ type: DataType.JSONB })
-  origin: { name: string; url: string };
+  declare image: string;
+  @Column
+  declare origin: string;
 }
