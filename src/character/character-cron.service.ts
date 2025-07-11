@@ -8,9 +8,9 @@ export class CharacterCronService {
 
   constructor(private readonly characterService: CharacterService) {}
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_12_HOURS)
   async handleCharacterSync() {
-    this.logger.log('⏰ Running 10s character sync job...');
+    this.logger.log('⏰ Running 12h character sync job...');
     await this.characterService.syncCharactersFromAPI();
     this.logger.log('✅ Character sync complete');
   }
