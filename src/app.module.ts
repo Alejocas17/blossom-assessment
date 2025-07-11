@@ -6,7 +6,7 @@ import { AppService } from './app.service';
 import { CharacterModule } from './character/character.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
-
+import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from './redis/redis.module';
 @Module({
   imports: [
@@ -19,6 +19,7 @@ import { RedisModule } from './redis/redis.module';
     RedisModule,
     CharacterModule,
     DatabaseModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],
