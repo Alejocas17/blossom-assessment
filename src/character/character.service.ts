@@ -5,6 +5,8 @@ import { GraphQLClient, gql } from 'graphql-request';
 import { Character } from './character.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op, WhereOptions } from 'sequelize';
+import { Timed } from 'src/common/decorators/timed.decorator';
+import { RedisService } from '../redis/redis.service';
 
 type RAMCharacter = {
   id: number;
@@ -26,8 +28,22 @@ export class CharacterService {
   constructor(
     @InjectModel(Character)
     private characterModel: typeof Character,
+    private readonly redisService: RedisService,
   ) {}
 
+  private createFilterKey(filter: CharacterFilterInput): string {
+    const filterString: string[] = [];
+
+    if (filter.name) filterString.push(`name:${filter.name}`);
+    if (filter.status) filterString.push(`status:${filter.status}`);
+    if (filter.species) filterString.push(`species:${filter.species}`);
+    if (filter.gender) filterString.push(`gender:${filter.gender}`);
+    if (filter.origin) filterString.push(`origin:${filter.origin}`);
+
+    return filterString.length > 0 ? filterString.join('|') : 'all';
+  }
+
+  @Timed()
   async seedInitialCharacters(): Promise<void> {
     const query = gql`
       query {
@@ -68,9 +84,25 @@ export class CharacterService {
 
     this.logger.log(`Seeded ${records.length} characters`);
   }
-
-  async findAll(filter?: CharacterFilterInput): Promise<CharacterType[]> {
+  @Timed()
+  async findAll(
+    filter?: CharacterFilterInput,
+  ): Promise<CharacterFilterInput[]> {
+    const filterString = filter ? this.createFilterKey(filter) : 'all';
+    const cacheKey = `characters:${filterString}`;
+    try {
+      const cached = (await this.redisService.get(
+        cacheKey,
+      )) as CharacterFilterInput[];
+      if (cached) {
+        this.logger.log(`Cache Found for key: ${cacheKey}`);
+        return cached;
+      }
+    } catch (error) {
+      this.logger.error(`Cache error for key: ${cacheKey}`, error);
+    }
     const filterQuery: WhereOptions<Character> = {};
+
     if (filter?.origin) {
       filterQuery.origin = filter.origin;
     }
@@ -87,6 +119,18 @@ export class CharacterService {
       filterQuery.gender = filter.gender;
     }
 
-    return this.characterModel.findAll({ where: filterQuery });
+    const results = await this.characterModel.findAll({ where: filterQuery });
+
+    // Store in cache for next time (5 minutes TTL)
+    try {
+      await this.redisService.set(cacheKey, results, 300);
+      this.logger.log(
+        `💾 Stored in cache: ${cacheKey} (${results.length} characters)`,
+      );
+    } catch (error) {
+      this.logger.error(`Error storing in cache: ${cacheKey}`, error);
+    }
+
+    return results as CharacterType[];
   }
 }
