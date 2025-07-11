@@ -65,7 +65,7 @@ query {
   characters(filter: { name: "Rick" }) {
     id
     name
-    originName
+    origin
   }
 }
 ```
@@ -149,3 +149,9 @@ npx sequelize-cli db:migrate
 - [x] Filtering logic
 - [x] Dockerized
 - [x] Unit tests
+
+## ✅ Evidence
+
+![EVIDENCE](./assets/evidence.png)
+![EVIDENCE2](./assets/evidence2.png)
+![EVIDENCE3](./assets/evidence3.png)
