@@ -31,14 +31,14 @@ export class CharacterService {
     private readonly redisService: RedisService,
   ) {}
 
-  private createFilterKey(filter: CharacterFilterInput): string {
+  private createFilterKey(filter?: CharacterFilterInput): string {
     const filterString: string[] = [];
 
-    if (filter.name) filterString.push(`name:${filter.name}`);
-    if (filter.status) filterString.push(`status:${filter.status}`);
-    if (filter.species) filterString.push(`species:${filter.species}`);
-    if (filter.gender) filterString.push(`gender:${filter.gender}`);
-    if (filter.origin) filterString.push(`origin:${filter.origin}`);
+    if (filter?.name) filterString.push(`name:${filter.name}`);
+    if (filter?.status) filterString.push(`status:${filter.status}`);
+    if (filter?.species) filterString.push(`species:${filter.species}`);
+    if (filter?.gender) filterString.push(`gender:${filter.gender}`);
+    if (filter?.origin) filterString.push(`origin:${filter.origin}`);
 
     return filterString.length > 0 ? filterString.join('|') : 'all';
   }
@@ -95,24 +95,17 @@ export class CharacterService {
           await this.characterModel.update(payload, {
             where: { id: payload.id },
           });
-          this.logger.log(`🔁 Updated character ${character.name}`);
+          this.logger.log(`Updated character ${character.name}`);
         }
       }
     }
-    if (this.redisService) {
-      await this.redisService.del('characters:*');
-    }
   }
   @Timed()
-  async findAll(
-    filter?: CharacterFilterInput,
-  ): Promise<CharacterFilterInput[]> {
+  async findAll(filter?: CharacterFilterInput): Promise<CharacterType[]> {
     const filterString = filter ? this.createFilterKey(filter) : 'all';
     const cacheKey = `characters:${filterString}`;
     try {
-      const cached = (await this.redisService.get(
-        cacheKey,
-      )) as CharacterFilterInput[];
+      const cached = (await this.redisService.get(cacheKey)) as CharacterType[];
       if (cached) {
         this.logger.log(`Cache Found for key: ${cacheKey}`);
         return cached;
@@ -126,7 +119,7 @@ export class CharacterService {
       filterQuery.origin = filter.origin;
     }
     if (filter?.name) {
-      filterQuery.name = { [Op.like]: `%${filter.name}%` } as unknown as string;
+      filterQuery.name = { [Op.iLike]: `%${filter.name}%` };
     }
     if (filter?.status) {
       filterQuery.status = filter.status;
