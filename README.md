@@ -20,7 +20,7 @@ This project is a backend technical assessment implementing a GraphQL API with E
 ### Core
 
 - GraphQL API for querying characters
-- Filtering by `name`, `status`, `species`, `gender`, `origin`
+- Filtering by `status`, `species`, `gender`, `name` and `origin`
 - PostgreSQL with real migrations (via `sequelize-cli`)
 - Caching search results using Redis
 - Logging middleware for every request
@@ -115,8 +115,11 @@ npx sequelize-cli db:migrate
   - I used Apollo Server (via `@nestjs/graphql`) to serve GraphQL over Express.
 
 - Swagger is not used because it is designed for REST APIs. GraphQL APIs include built-in introspection and are documented through tools like GraphQL Playground or Apollo Sandbox.
+
 - Redis cache is key-based using a composite string of the filter input.
-  - For example: characters(filter: { name: "Rick" }) would have the key => characters:name:Rick
+  - For example: characters(filter: { name: "Rick" }) would have the key => characters:name:Rick.
+
+-I followed the GitFlow branching model throughout development, including features (feat/), fixes (fix/), and merges via PRs (e.g. hotfixes and features).
 
 ---
 
@@ -124,7 +127,8 @@ npx sequelize-cli db:migrate
 
 - Use **webhooks** from the Rick and Morty API to react to changes instead of polling every 12h (not currently supported by the API).
 - Add pagination and ordering to character queries.
-- Create a proper admin mutation interface (CRUD).
+- Create a proper admin mutation interface (**CRUD**).
+- Build a staged based **DockerFile**, in order to separate dev, QA and production environments.
 
 ---
 
