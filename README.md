@@ -129,6 +129,7 @@ npx sequelize-cli db:migrate
 - Add pagination and ordering to character queries.
 - Create a proper admin mutation interface (**CRUD**).
 - Build a staged based **DockerFile**, in order to separate dev, QA and production environments.
+- To have unit and end to end test implementing CI/CD pipeline e.g. Github Actions on each PR.
 
 ---
 
