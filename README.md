@@ -85,6 +85,17 @@ Tests cover:
 
 ---
 
+Test results:
+![TESTS](./assets/test.png)
+
+---
+
+## 🕐 Cron Job testing
+
+Cron Job was tested with 10 seconds periodicity to validate registry updating when different data is found:
+
+![CRON](./assets/cronJob.png)
+
 ## 🧠 Development Notes
 
 - The app uses `synchronize: false` and real Sequelize migrations via CLI.
