@@ -9,20 +9,33 @@ services:
       - .:/app
     environment:
       - NODE_ENV=development
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     command: npm run start:dev
     depends_on:
+      - redis
       - db
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis:/data
 
   db:
     image: postgres:15
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=postgres
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
 volumes:
   postgres_data:
+  redis:
+    driver: local

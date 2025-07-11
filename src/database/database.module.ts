@@ -1,12 +1,10 @@
 // src/database/database.module.ts
 import { Module } from '@nestjs/common';
 import { SequelizeModule, SequelizeModuleOptions } from '@nestjs/sequelize';
-import { ConfigModule } from '@nestjs/config';
 import { Character } from '../character/character.model';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // lee .env
     SequelizeModule.forRootAsync({
       useFactory: (): SequelizeModuleOptions => ({
         dialect: 'postgres',
