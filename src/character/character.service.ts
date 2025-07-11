@@ -59,7 +59,13 @@ export class CharacterService {
     filter?: CharacterFilterInput,
   ): Promise<{ characters: RAMCharacter[]; totalPages: number }> {
     // Build filter variables for GraphQL query
-    const filterVariables: any = { page };
+    const filterVariables: {
+      page: number;
+      name?: string;
+      status?: string;
+      species?: string;
+      gender?: string;
+    } = { page };
 
     if (filter?.name) filterVariables.name = filter.name;
     if (filter?.status) filterVariables.status = filter.status;
