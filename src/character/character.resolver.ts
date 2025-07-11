@@ -10,7 +10,7 @@ export class CharacterResolver {
   @Query(() => [CharacterType])
   async characters(
     @Args('filter', { nullable: true }) filter?: CharacterFilterInput,
-  ): Promise<CharacterType[]> {
+  ): Promise<CharacterFilterInput[]> {
     return this.characterService.findAll(filter);
   }
 }
