@@ -11,10 +11,12 @@ services:
       - NODE_ENV=development
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-    command: npm run start:dev
+    # command: npm run start:dev
     depends_on:
       - redis
       - db
+    command: >
+      sh -c "npx sequelize-cli db:migrate && npm run start:dev"
 
   redis:
     image: redis:7
