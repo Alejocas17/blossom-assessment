@@ -44,7 +44,7 @@ export class CharacterService {
   }
 
   @Timed()
-  async seedInitialCharacters(): Promise<void> {
+  async syncCharactersFromAPI(): Promise<void> {
     const query = gql`
       query {
         characters(page: 1) {
@@ -67,22 +67,41 @@ export class CharacterService {
       characters: { results: RAMCharacter[] };
     }>(query);
     const characters = data.characters.results.slice(0, 15);
-
-    const records = characters.map((c) => ({
-      id: +c.id,
-      name: c.name,
-      status: c.status,
-      species: c.species,
-      gender: c.gender,
-      image: c.image,
-      origin: c.origin?.name || '',
-    })) as Character[];
-
-    await this.characterModel.bulkCreate(records, {
-      ignoreDuplicates: true,
-    });
-
-    this.logger.log(`Seeded ${records.length} characters`);
+    for (const character of characters) {
+      const payload = {
+        id: +character.id,
+        name: character.name,
+        status: character.status,
+        species: character.species,
+        gender: character.gender,
+        image: character.image,
+        origin: character.origin?.name || 'Unknown',
+      };
+      const existing = await this.characterModel.findOne({
+        where: { id: payload.id },
+      });
+      if (!existing) {
+        await this.characterModel.create(payload as Character);
+        this.logger.log(`🆕 Created character ${character.name}`);
+      } else {
+        if (
+          existing.name !== payload.name ||
+          existing.origin !== payload.origin ||
+          existing.status !== payload.status ||
+          existing.species !== payload.species ||
+          existing.gender !== payload.gender ||
+          existing.image !== payload.image
+        ) {
+          await this.characterModel.update(payload, {
+            where: { id: payload.id },
+          });
+          this.logger.log(`🔁 Updated character ${character.name}`);
+        }
+      }
+    }
+    if (this.redisService) {
+      await this.redisService.del('characters:*');
+    }
   }
   @Timed()
   async findAll(
